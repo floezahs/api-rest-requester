@@ -30,7 +30,7 @@ func main() {
 	app := NewApp(store)
 
 	err = wails.Run(&options.App{
-		Title:     "API Kit",
+		Title:     "Nadir",
 		Width:     1280,
 		Height:    860,
 		MinWidth:  900,
@@ -65,7 +65,7 @@ func getDataDir() (string, error) {
 	if err != nil {
 		configDir = "."
 	}
-	dir := filepath.Join(configDir, "api-kit")
+	dir := filepath.Join(configDir, "nadir")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}

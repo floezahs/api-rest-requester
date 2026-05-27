@@ -17,7 +17,7 @@ var AppVersion string
 
 const (
 	versionCheckURL = "https://raw.githubusercontent.com/floezahs/api-rest-requester/main/version.txt"
-	downloadURL     = "https://github.com/floezahs/api-rest-requester/releases/latest/download/api-kit.exe"
+	downloadURL     = "https://github.com/floezahs/api-rest-requester/releases/latest/download/nadir.exe"
 )
 
 func init() {

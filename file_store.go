@@ -38,7 +38,7 @@ func NewFileStore(dataDir string) (*FileStore, error) {
 }
 
 func (fs *FileStore) filePath() string {
-	return filepath.Join(fs.dataDir, "api-kit.json")
+	return filepath.Join(fs.dataDir, "nadir.json")
 }
 
 func (fs *FileStore) load() error {

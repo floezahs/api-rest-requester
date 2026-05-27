@@ -45,10 +45,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('api-kit-theme') as Theme) || 'dark';
+    return (localStorage.getItem('nadir-theme') as Theme) || 'dark';
   });
   const [fontSize, setFontSize] = useState<FontSize>(() => {
-    return (localStorage.getItem('api-kit-font-size') as FontSize) || '13';
+    return (localStorage.getItem('nadir-font-size') as FontSize) || '13';
   });
   const [version, setVersion] = useState('0.0.0');
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
@@ -58,15 +58,18 @@ export default function App() {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [activeEnvId, setActiveEnvId] = useState('');
   const [showEnvManager, setShowEnvManager] = useState(false);
+  const [splitPercent, setSplitPercent] = useState(50);
+  const [dragging, setDragging] = useState(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('api-kit-theme', theme);
+    localStorage.setItem('nadir-theme', theme);
   }, [theme]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--font-size-base', fontSize + 'px');
-    localStorage.setItem('api-kit-font-size', fontSize);
+    localStorage.setItem('nadir-font-size', fontSize);
   }, [fontSize]);
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -95,6 +98,32 @@ export default function App() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!dragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = splitContainerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const pct = ((e.clientY - rect.top) / rect.height) * 100;
+      setSplitPercent(Math.min(80, Math.max(20, pct)));
+    };
+
+    const handleMouseUp = () => setDragging(false);
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragging]);
 
   useEffect(() => {
     GetVersion().then(setVersion).catch(() => {});
@@ -355,8 +384,14 @@ export default function App() {
           onImportPaste={handleImportPaste}
         />
       </div>
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="h-1/2 min-h-[200px] border-b border-border-primary overflow-hidden flex flex-col">
+      <div
+        ref={splitContainerRef}
+        className={`flex-1 flex flex-col min-w-0 ${dragging ? 'select-none' : ''}`}
+      >
+        <div
+          className="overflow-hidden flex flex-col border-b border-border-primary flex-shrink-0"
+          style={{ height: `${splitPercent}%`, minHeight: '120px' }}
+        >
           <div className="flex items-center justify-between px-3 py-1 border-b border-border-secondary bg-surface-secondary flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-content-muted font-semibold uppercase tracking-wider">Request</span>
@@ -431,7 +466,15 @@ export default function App() {
             />
           </div>
         </div>
-        <div className="flex-1 min-h-[150px] overflow-hidden flex flex-col">
+
+        <div
+          className="flex-shrink-0 h-1.5 cursor-row-resize hover:bg-accent transition-colors relative group"
+          onMouseDown={handleMouseDown}
+        >
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-border-primary group-hover:bg-accent transition-colors" />
+        </div>
+
+        <div className="flex-1 min-h-[100px] overflow-hidden flex flex-col">
           <div className="px-3 py-1 border-b border-border-secondary bg-surface-secondary flex-shrink-0">
             <span className="text-[11px] text-content-muted font-semibold uppercase tracking-wider">Response</span>
           </div>

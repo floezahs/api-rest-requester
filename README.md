@@ -1,10 +1,10 @@
 
-# API Kit
+# Nadir
 
 A native desktop HTTP client for testing REST APIs. Build, send, and inspect HTTP requests with a clean, modern interface — similar to Postman or Insomnia, but lightweight and compiled to a single executable.
 
 <p align="center">
-  <img src="img/portada.png" alt="API Kit" />
+  <img src="img/portada.png" alt="Nadir" />
 </p>
 
 ## Features

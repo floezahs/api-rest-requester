@@ -1,7 +1,7 @@
 {
     "$schema":  "https://wails.io/schemas/config.v2.json",
-    "name":  "api-kit",
-    "outputfilename":  "api-kit",
+    "name":  "nadir",
+    "outputfilename":  "nadir",
     "frontend:install":  "npm install",
     "frontend:build":  "npm run build",
     "frontend:dev:watcher":  "npm run dev",
@@ -13,7 +13,7 @@
     "info":  {
                  "productVersion":  "1.0.1",
                  "companyName":  "Hotel Shops",
-                 "productName":  "API Kit",
+                 "productName":  "Nadir",
                  "copyright":  "Copyright 2026",
                  "comments":  "HTTP API Testing Tool"
              }
