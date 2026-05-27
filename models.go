@@ -135,3 +135,11 @@ type PostmanFormField struct {
 	Value    string `json:"value"`
 	Disabled bool   `json:"disabled"`
 }
+
+type UpdateInfo struct {
+	CurrentVersion  string `json:"currentVersion"`
+	LatestVersion   string `json:"latestVersion"`
+	UpdateAvailable bool   `json:"updateAvailable"`
+	DownloadURL     string `json:"downloadUrl"`
+	Error           string `json:"error,omitempty"`
+}

@@ -6,6 +6,10 @@ export function AddRequest(arg1, arg2) {
   return window['go']['main']['App']['AddRequest'](arg1, arg2);
 }
 
+export function CheckUpdate() {
+  return window['go']['main']['App']['CheckUpdate']();
+}
+
 export function ClearHistory() {
   return window['go']['main']['App']['ClearHistory']();
 }
@@ -48,6 +52,10 @@ export function GetEnvironments() {
 
 export function GetHistory() {
   return window['go']['main']['App']['GetHistory']();
+}
+
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
 }
 
 export function ImportPostmanJSON(arg1) {

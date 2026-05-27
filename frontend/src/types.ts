@@ -50,6 +50,13 @@ export namespace models {
     count: number;
     error: string;
   }
+  export interface UpdateInfo {
+    currentVersion: string;
+    latestVersion: string;
+    updateAvailable: boolean;
+    downloadUrl: string;
+    error?: string;
+  }
 }
 
 export type KeyValue = models.KeyValue;
@@ -60,6 +67,7 @@ export type Collection = models.Collection;
 export type HistoryEntry = models.HistoryEntry;
 export type Environment = models.Environment;
 export type ImportResult = models.ImportResult;
+export type UpdateInfo = models.UpdateInfo;
 
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type BodyType = 'none' | 'json' | 'raw' | 'form-data' | 'x-www-form-urlencoded';

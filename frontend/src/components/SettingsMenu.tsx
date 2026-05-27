@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { UpdateInfo } from '../types';
 
 export type FontSize = '11' | '13' | '15' | '17';
 
@@ -12,9 +13,22 @@ const SIZES: { id: FontSize; label: string; px: string }[] = [
 interface SettingsMenuProps {
   fontSize: FontSize;
   onFontSizeChange: (size: FontSize) => void;
+  version: string;
+  updateInfo: UpdateInfo | null;
+  checkingUpdate: boolean;
+  onCheckUpdate: () => void;
+  onDownloadUpdate: () => void;
 }
 
-export default function SettingsMenu({ fontSize, onFontSizeChange }: SettingsMenuProps) {
+export default function SettingsMenu({
+  fontSize,
+  onFontSizeChange,
+  version,
+  updateInfo,
+  checkingUpdate,
+  onCheckUpdate,
+  onDownloadUpdate,
+}: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +43,9 @@ export default function SettingsMenu({ fontSize, onFontSizeChange }: SettingsMen
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
+  const updateAvailable = updateInfo?.updateAvailable;
+  const updateError = updateInfo?.error;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -36,20 +53,24 @@ export default function SettingsMenu({ fontSize, onFontSizeChange }: SettingsMen
         className="flex items-center gap-2 px-2 py-1 rounded border border-border-primary hover:bg-surface-hover transition-colors text-xs"
         title="Settings"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-content-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={updateAvailable ? 'text-warning' : 'text-content-secondary'}>
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
+        {updateAvailable && (
+          <span className="w-2 h-2 rounded-full bg-warning flex-shrink-0" />
+        )}
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-content-muted">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-surface-secondary border border-border-primary rounded-lg shadow-xl py-1 z-50 min-w-[200px]">
+        <div className="absolute right-0 top-full mt-1 bg-surface-secondary border border-border-primary rounded-lg shadow-xl py-1 z-50 min-w-[240px]">
           <div className="px-3 py-2 text-[10px] text-content-muted uppercase tracking-wider font-semibold border-b border-border-secondary">
             Settings
           </div>
-          <div className="px-3 py-2">
+
+          <div className="px-3 py-2 border-b border-border-secondary">
             <div className="text-[10px] text-content-muted uppercase tracking-wider font-semibold mb-2">
               Font Size
             </div>
@@ -69,6 +90,48 @@ export default function SettingsMenu({ fontSize, onFontSizeChange }: SettingsMen
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="px-3 py-2">
+            <div className="text-[10px] text-content-muted uppercase tracking-wider font-semibold mb-1">
+              Version
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-content-secondary">v{version}</span>
+              <button
+                onClick={onCheckUpdate}
+                disabled={checkingUpdate}
+                className="text-[10px] px-2 py-0.5 rounded border border-border-primary text-content-muted hover:text-content-secondary hover:bg-surface-hover transition-colors disabled:opacity-50"
+              >
+                {checkingUpdate ? 'Checking...' : 'Check Updates'}
+              </button>
+            </div>
+
+            {updateAvailable && (
+              <div className="mt-2 p-2 rounded bg-green-900/20 border border-green-800/30">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-success">
+                    v{updateInfo!.latestVersion} available
+                  </span>
+                  <button
+                    onClick={onDownloadUpdate}
+                    className="text-[10px] px-2 py-0.5 rounded bg-success text-white hover:bg-green-600 transition-colors font-medium"
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {updateError && (
+              <div className="mt-2 text-[10px] text-danger">{updateError}</div>
+            )}
+
+            {updateInfo && !updateAvailable && !updateError && (
+              <div className="mt-1 text-[10px] text-content-muted">
+                You're up to date
+              </div>
+            )}
           </div>
         </div>
       )}

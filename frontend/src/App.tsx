@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Collection, HistoryEntry, RequestConfig, HTTPResponse, Theme, ImportResult, Environment } from './types';
+import { Collection, HistoryEntry, RequestConfig, HTTPResponse, Theme, ImportResult, UpdateInfo, Environment } from './types';
 import {
   GetCollections, CreateCollection, DeleteCollection,
   AddRequest, UpdateRequest, DeleteRequest,
@@ -7,6 +7,7 @@ import {
   SendRequest, ImportPostmanJSON,
   GetEnvironments, CreateEnvironment, UpdateEnvironment, DeleteEnvironment,
   SetActiveEnvironment, GetActiveEnvironment,
+  GetVersion, CheckUpdate,
 } from '../wailsjs/go/main/App';
 import Sidebar from './components/Sidebar';
 import RequestPanel from './components/RequestPanel';
@@ -49,6 +50,9 @@ export default function App() {
   const [fontSize, setFontSize] = useState<FontSize>(() => {
     return (localStorage.getItem('api-kit-font-size') as FontSize) || '13';
   });
+  const [version, setVersion] = useState('0.0.0');
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const toastTimer = useRef<number | null>(null);
   const [environments, setEnvironments] = useState<Environment[]>([]);
@@ -91,6 +95,34 @@ export default function App() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    GetVersion().then(setVersion).catch(() => {});
+  }, []);
+
+  const handleCheckUpdate = async () => {
+    setCheckingUpdate(true);
+    try {
+      const info = await CheckUpdate();
+      setUpdateInfo(info as unknown as UpdateInfo);
+    } catch (e) {
+      setUpdateInfo({
+        currentVersion: version,
+        latestVersion: '',
+        updateAvailable: false,
+        downloadUrl: '',
+        error: String(e),
+      });
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
+  const handleDownloadUpdate = () => {
+    if (updateInfo?.downloadUrl) {
+      window.open(updateInfo.downloadUrl, '_blank');
+    }
+  };
 
   const handleSend = async () => {
     setLoading(true);
@@ -379,7 +411,15 @@ export default function App() {
                 )}
               </button>
               <ThemeSwitcher current={theme} onChange={setTheme} />
-              <SettingsMenu fontSize={fontSize} onFontSizeChange={setFontSize} />
+              <SettingsMenu
+                fontSize={fontSize}
+                onFontSizeChange={setFontSize}
+                version={version}
+                updateInfo={updateInfo}
+                checkingUpdate={checkingUpdate}
+                onCheckUpdate={handleCheckUpdate}
+                onDownloadUpdate={handleDownloadUpdate}
+              />
             </div>
           </div>
           <div className="flex-1 overflow-hidden">

@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function AddRequest(arg1:string,arg2:main.RequestConfig):Promise<main.RequestConfig>;
 
+export function CheckUpdate():Promise<main.UpdateInfo>;
+
 export function ClearHistory():Promise<void>;
 
 export function CreateCollection(arg1:string):Promise<main.Collection>;
@@ -25,6 +27,8 @@ export function GetCollections():Promise<Array<main.Collection>>;
 export function GetEnvironments():Promise<Array<main.Environment>>;
 
 export function GetHistory():Promise<Array<main.HistoryEntry>>;
+
+export function GetVersion():Promise<string>;
 
 export function ImportPostmanJSON(arg1:string):Promise<main.ImportResult>;
 
