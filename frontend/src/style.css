@@ -325,3 +325,65 @@ input:focus, textarea:focus, select:focus {
 .json-number { color: var(--warning); }
 .json-boolean { color: var(--method-patch); }
 .json-null   { color: var(--danger); }
+
+.json-tree-viewer {
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 8px 0;
+}
+
+.json-tree-line {
+  display: flex;
+  min-height: 1.6em;
+  align-items: flex-start;
+}
+
+.json-tree-line:hover {
+  background: var(--bg-hover);
+}
+
+.json-line-number {
+  min-width: 48px;
+  text-align: right;
+  padding: 0 12px 0 8px;
+  color: var(--text-muted);
+  user-select: none;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+.json-line-content {
+  white-space: pre;
+  flex: 1;
+  line-height: 1.6;
+  padding-right: 16px;
+  overflow: hidden;
+}
+
+.json-line-collapsible {
+  cursor: pointer;
+}
+
+.json-line-collapsible:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--text-muted);
+  text-underline-offset: 2px;
+}
+
+.json-toggle {
+  color: var(--text-muted);
+  user-select: none;
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+}
+
+.json-bracket {
+  color: var(--text-muted);
+}
+
+.json-summary {
+  color: var(--text-muted);
+  font-style: italic;
+}

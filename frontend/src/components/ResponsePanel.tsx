@@ -1,81 +1,38 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { HTTPResponse } from '../types';
+import JsonTreeViewer from './JsonTreeViewer';
 
 interface ResponsePanelProps {
   response: HTTPResponse | null;
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-function highlightJson(str: string): string {
+function isJson(str: string): boolean {
   try {
     JSON.parse(str);
+    return true;
   } catch {
-    return escapeHtml(str);
+    return false;
   }
+}
 
-  const formatted = JSON.stringify(JSON.parse(str), null, 2);
-  let result = '';
-  let i = 0;
+function TextWithLineNumbers({ text }: { text: string }) {
+  const lines = useMemo(() => text.split('\n'), [text]);
+  const maxDigits = String(lines.length).length;
 
-  while (i < formatted.length) {
-    const ch = formatted[i];
-
-    if (ch === '"') {
-      let j = i + 1;
-      while (j < formatted.length) {
-        if (formatted[j] === '\\') { j += 2; continue; }
-        if (formatted[j] === '"') break;
-        j++;
-      }
-      j++;
-      const token = escapeHtml(formatted.slice(i, j));
-      let k = j;
-      while (k < formatted.length && (formatted[k] === ' ' || formatted[k] === '\n')) k++;
-      if (formatted[k] === ':') {
-        result += `<span class="json-key">${token}</span>`;
-      } else {
-        result += `<span class="json-string">${token}</span>`;
-      }
-      i = j;
-      continue;
-    }
-
-    if (/[-\d]/.test(ch)) {
-      let j = i;
-      if (formatted[j] === '-') j++;
-      while (j < formatted.length && /[\d.eE+\-]/.test(formatted[j])) j++;
-      result += `<span class="json-number">${escapeHtml(formatted.slice(i, j))}</span>`;
-      i = j;
-      continue;
-    }
-
-    if (formatted.startsWith('true', i)) {
-      result += '<span class="json-boolean">true</span>';
-      i += 4;
-      continue;
-    }
-    if (formatted.startsWith('false', i)) {
-      result += '<span class="json-boolean">false</span>';
-      i += 5;
-      continue;
-    }
-    if (formatted.startsWith('null', i)) {
-      result += '<span class="json-null">null</span>';
-      i += 4;
-      continue;
-    }
-
-    result += escapeHtml(ch);
-    i++;
-  }
-
-  return result;
+  return (
+    <div className="json-tree-viewer">
+      {lines.map((line, i) => (
+        <div key={i} className="json-tree-line">
+          <span className="json-line-number" style={{ minWidth: `${maxDigits * 8 + 28}px` }}>
+            {i + 1}
+          </span>
+          <span className="json-line-content text-sm text-content-primary font-mono">
+            {line}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function statusColor(code: number): string {
@@ -147,11 +104,12 @@ export default function ResponsePanel({ response }: ResponsePanelProps) {
       </div>
       <div className="flex-1 overflow-auto">
         <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-auto p-4">
-            <pre
-              className="text-sm text-content-primary whitespace-pre-wrap font-mono leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: highlightJson(response.body) }}
-            />
+          <div className="flex-1 overflow-auto">
+            {isJson(response.body) ? (
+              <JsonTreeViewer data={JSON.parse(response.body)} />
+            ) : (
+              <TextWithLineNumbers text={response.body} />
+            )}
           </div>
           {Object.keys(response.headers).length > 0 && (
             <details className="border-t border-border-secondary">
